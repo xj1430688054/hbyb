@@ -64,7 +64,7 @@ db2 "create table CACMain_A
    EngineNo          VARCHAR(50),
    BusinessType              VARCHAR(1),
    Reason VARCHAR(1),
-   InputDate TIMESTAMP 
+   InputDate TIMESTAMP ,
    CONSTRAINT P_CACMain_A PRIMARY KEY (SerialNo)
 ) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
 echo "==============================================="
@@ -134,7 +134,7 @@ db2 "create table CAPostponeMain
    LicenseNo        VARCHAR(15),
    EngineNo          VARCHAR(50),
    BusinessType              VARCHAR(1),
-   CONSTRAINT P_CAPostponeMain PRIMARY KEY (INTEGER)
+   CONSTRAINT P_CAPostponeMain PRIMARY KEY (SerialNo)
 ) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
 echo "==============================================="
 
@@ -156,7 +156,7 @@ db2 "create table CAPostponeCoverage
    UpdateTime TIMESTAMP,
    InputDate TIMESTAMP ,
    ValidStatus VARCHAR(1),
-   CONSTRAINT P_CAPostponeCoverage PRIMARY KEY (INTEGER)
+   CONSTRAINT P_CAPostponeCoverage PRIMARY KEY (SerialNo)
 ) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
 echo "==============================================="
 
