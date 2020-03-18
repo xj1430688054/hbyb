@@ -11,7 +11,7 @@ date
 
 echo "请输入数据库名 ->"|tr -d "\012"
   #  read _DBNAME
- _DBNAME=iaca51db 
+ _DBNAME=iaca42db 
 	
 echo ""    
 echo "请输入数据库用户 ->"|tr -d "\012"
@@ -51,12 +51,12 @@ db2 "drop table CAPostponeCoverage"
 
 #db2 "drop table CACCoverage_X"
 
-db2 "drop index  IDX_CACMain_A _01"
-db2 "drop index IDX_CACMain_B _01"
-db2 "drop index IDX_CACMain_X _01"
-db2 "drop index IDX_CACMain_X _02"
-db2 "drop index IDX_CAPostponeMain _01 "
-db2 "drop index IDX_CAPostponeCoverage _01 "
+db2 "drop index IDX_CACMain_A_01"
+db2 "drop index IDX_CACMain_B_01"
+db2 "drop index IDX_CACMain_X_01"
+db2 "drop index IDX_CACMain_X_02"
+db2 "drop index IDX_CAPostponeMain_01 "
+db2 "drop index IDX_CAPostponeCoverage_01 "
 
 
 

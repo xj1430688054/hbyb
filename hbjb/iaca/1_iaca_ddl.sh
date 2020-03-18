@@ -12,7 +12,7 @@ date
 
 echo "请输入数据库名 ->"|tr -d "\012"
   #  read _DBNAME
-_DBNAME=iaca51db	
+_DBNAME=iaca42db	
 	
 	
 echo ""    
@@ -109,7 +109,7 @@ db2 "create table CACMain_X
    LicenseNo        VARCHAR(15),
    EngineNo          VARCHAR(50),
    BusinessType              VARCHAR(1),
-    InputDate TIMESTAMP ,，
+    InputDate TIMESTAMP ,
    CONSTRAINT P_CACMain_X PRIMARY KEY (SerialNo)
 ) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
 echo "==============================================="
@@ -172,28 +172,32 @@ echo "==============================================="
 
 
 echo "创建索引"
-db2 "create index IDX_CACMain_A _01 on CACMain_A (
-   ConfirmSequenceNo           ASC
-)
-"db2 "create index IDX_CACMain_B _01 on CACMain_B (
+
+db2 "create index IDX_CACMain_A_01 on CACMain_A (
    ConfirmSequenceNo           ASC
 )
 "
-db2 "create index IDX_CACMain_X _01 on CACMain_X (
+db2 "create index IDX_CACMain_B_01 on CACMain_B (
    ConfirmSequenceNo           ASC
 )
 "
 
-db2 "create index IDX_CACMain_X _02 on CACMain_X (
+db2 "create index IDX_CACMain_X_01 on CACMain_X (
+   ConfirmSequenceNo           ASC
+)
+"
+
+db2 "create index IDX_CACMain_X_02 on CACMain_X (
    LastPoliConfirmNo           ASC
 )
 "
 
-db2 "create index IDX_CAPostponeMain _01 on CAPostponeMain (
+db2 "create index IDX_CAPostponeMain_01 on CAPostponeMain (
    ConfirmSequenceNo           ASC
 )
 "
-db2 "create index IDX_CAPostponeCoverage _01 on CAPostponeCoverage (
+
+db2 "create index IDX_CAPostponeCoverage_01 on CAPostponeCoverage (
    ConfirmSequenceNo           ASC
 )
 "
