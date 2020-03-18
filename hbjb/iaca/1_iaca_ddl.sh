@@ -48,18 +48,18 @@ _TBSINDEX=tbsindex
 ################请按照需求书写sql####################
 
 echo "==============================================="
-echo "创建CACMain_A表"
+echo "创建CACMain_A-疫情期全量本保单信息表"
 echo "==============================================="
 db2 "create table CACMain_A
 (
-	SerialNo INTEGER  NOT NULL,
+SerialNo INTEGER  NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1 ),
    ConfirmSequenceNo VARCHAR(50) NOT NULL,
    PolicyNo      VARCHAR(50) ,
+   CompanyCode VARCHAR(8) ,
    CityCode          VARCHAR(10) ,
-   companycode VARCHAR(8) ,
-   StartDate  TIMESTAMP ,
-     EndDate        TIMESTAMP ,
-    Vin   VARCHAR(50),
+   EffectiveDate   TIMESTAMP ,
+    ExpireDate         TIMESTAMP ,
+   Vin   VARCHAR(50),
    LicenseNo        VARCHAR(15),
    EngineNo          VARCHAR(50),
    BusinessType              VARCHAR(1),
@@ -71,69 +71,75 @@ echo "==============================================="
 
 
 echo "==============================================="
-echo "创建CACMain_B表"
+echo "创建CACMain_B-本保单信息表"
 echo "==============================================="
 db2 "create table CACMain_B
 (
-	SerialNo INTEGER  NOT NULL,
+	SerialNo INTEGER  NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1 ),
    ConfirmSequenceNo VARCHAR(50) NOT NULL,
    PolicyNo      VARCHAR(50) ,
+   CompanyCode VARCHAR(8) ,
    CityCode          VARCHAR(10) ,
-   companycode VARCHAR(8) ,
    EffectiveDate TIMESTAMP ,
      ExpireDate       TIMESTAMP ,
     Vin   VARCHAR(50),
    LicenseNo        VARCHAR(15),
    EngineNo          VARCHAR(50),
    BusinessType              VARCHAR(1),
+   InputDate TIMESTAMP ,
    CONSTRAINT P_CACMain_B PRIMARY KEY (SerialNo)
 ) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
 echo "==============================================="
 
 
 echo "==============================================="
-echo "创建CACMain_X表"
+echo "创建CACMain_X-续保保单信息表"
 echo "==============================================="
 db2 "create table CACMain_X
 (
-	SerialNo INTEGER  NOT NULL,
+	SerialNo INTEGER  NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1 ),
    ConfirmSequenceNo VARCHAR(50) NOT NULL,
    PolicyNo      VARCHAR(50) ,
+   CompanyCode VARCHAR(8) ,
    CityCode          VARCHAR(10) ,
    EffectiveDate TIMESTAMP ,
    ExpireDate        TIMESTAMP ,
-   companycode VARCHAR(8) ,
    LastPoliConfirmNo VARCHAR(50),
     Vin   VARCHAR(50),
    LicenseNo        VARCHAR(15),
    EngineNo          VARCHAR(50),
    BusinessType              VARCHAR(1),
+    InputDate TIMESTAMP ,，
    CONSTRAINT P_CACMain_X PRIMARY KEY (SerialNo)
 ) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
 echo "==============================================="
 
 
 echo "==============================================="
-echo "创建CAPostponeMain表"
+echo "创建CAPostponeMain-顺延保单信息表"
 echo "==============================================="
 db2 "create table CAPostponeMain
 (
-	SerialNo INTEGER  NOT NULL,
-   PostponeConfirmSequenceNo VARCHAR(50) not null,
-   PostponePolicyNo VARCHAR(50),
-   PostponeEffectiveDate TIMESTAMP,
-   companycode VARCHAR(8) ,
-   PostponeExpireDate TIMESTAMP,
-   AfterPostponeExpireDate TIMESTAMP,
-   PostponeDay INTEGER ,
-   ConfirmSequenceNo VARCHAR(50) ,
-   PolicyNo      VARCHAR(50) ,
-   ExpireDate        TIMESTAMP ,
+	SerialNo INTEGER  NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1 ),
+   ConfirmSequenceNo VARCHAR(50) not null,
+   PolicyNo VARCHAR(50),
+   EffectiveDate TIMESTAMP,
+   ExpireDate TIMESTAMP,
+   AfterExpireDate TIMESTAMP,
+   PostponeStartDate TIMESTAMP,
+	PostponeEndDate TIMESTAMP,
+	PostponeDay INTEGER,
+   CompanyCode VARCHAR(8) ,
    CityCode          VARCHAR(10) ,
+   LastPolicyConfirmNo   VARCHAR(50),
    Vin   VARCHAR(50),
    LicenseNo        VARCHAR(15),
    EngineNo          VARCHAR(50),
    BusinessType              VARCHAR(1),
+   InputDate    TIMESTAMP,
+	UpdateTime  TIMESTAMP,
+	ValidStatus VARCHAR(1),
+
    CONSTRAINT P_CAPostponeMain PRIMARY KEY (SerialNo)
 ) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
 echo "==============================================="
@@ -141,20 +147,20 @@ echo "==============================================="
 
 
 echo "==============================================="
-echo "创建CAPostponeCoverage表"
+echo "创建CAPostponeCoverage-顺延险种信息表"
 echo "==============================================="
 db2 "create table CAPostponeCoverage
 (
-	SerialNo INTEGER  NOT NULL,
+	SerialNo INTEGER  NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1 ),
    ConfirmSequenceNo VARCHAR(50) not null,
-   companycode VARCHAR(8) ,
+   CompanyCode VARCHAR(8) ,
    CoverageCode VARCHAR(10),
+    EffectiveDate  TIMESTAMP,
    ExpireDate        TIMESTAMP ,
-   EffectiveDate  TIMESTAMP,
    AfterExpireDate TIMESTAMP,
    BusinessType              VARCHAR(1),
+      InputDate TIMESTAMP ,
    UpdateTime TIMESTAMP,
-   InputDate TIMESTAMP ,
    ValidStatus VARCHAR(1),
    CONSTRAINT P_CAPostponeCoverage PRIMARY KEY (SerialNo)
 ) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
@@ -164,6 +170,33 @@ echo "==============================================="
 
 
 
+
+echo "创建索引"
+db2 "create index IDX_CACMain_A _01 on CACMain_A (
+   ConfirmSequenceNo           ASC
+)
+"db2 "create index IDX_CACMain_B _01 on CACMain_B (
+   ConfirmSequenceNo           ASC
+)
+"
+db2 "create index IDX_CACMain_X _01 on CACMain_X (
+   ConfirmSequenceNo           ASC
+)
+"
+
+db2 "create index IDX_CACMain_X _02 on CACMain_X (
+   LastPoliConfirmNo           ASC
+)
+"
+
+db2 "create index IDX_CAPostponeMain _01 on CAPostponeMain (
+   ConfirmSequenceNo           ASC
+)
+"
+db2 "create index IDX_CAPostponeCoverage _01 on CAPostponeCoverage (
+   ConfirmSequenceNo           ASC
+)
+"
 
 
 

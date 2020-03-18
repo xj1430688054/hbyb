@@ -49,6 +49,18 @@ db2 "drop table CAPostponeCoverage"
 
 
 
+#db2 "drop table CACCoverage_X"
+
+db2 "drop index  IDX_CACMain_A _01"
+db2 "drop index IDX_CACMain_B _01"
+db2 "drop index IDX_CACMain_X _01"
+db2 "drop index IDX_CACMain_X _02"
+db2 "drop index IDX_CAPostponeMain _01 "
+db2 "drop index IDX_CAPostponeCoverage _01 "
+
+
+
+
 
 
 ################请按照需求书写rollback 的相关sql####################
