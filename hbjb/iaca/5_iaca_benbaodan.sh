@@ -12,7 +12,7 @@ date
 
 echo "请输入数据库名 ->"|tr -d "\012"
   #  read _DBNAME
-_DBNAME=iaci42db	
+_DBNAME=iaca42db	
 	
 	
 echo ""    
@@ -47,39 +47,50 @@ _TBSINDEX=tbsindex
 
 ################请按照需求书写sql####################
 
-####数据量可能大，。。执行之间可能很大,  
-######假设当前保单的对应的批单中对应多条EndorseType为2的状况的数据时， 会发送sql错误，主键重复
-echo "==============================================="
-db2 "
-insert into IACMain_NCP(POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTDATE, ENDDATE, STOPTRAVELTYPE, STOPTRASTARTDATE, STOPTRAVELENDDATE, BIZSTATUS, LASTPOLICONFIRMNO, FRAMENO, LICENSENO, ENGINENO, FLAG, INPUTDATE, UPDATETIME)
+##假设跨疫情期间的保单存在两种保单续保 主键？
 
- select 
-		a.POLICYCONFIRMNO,
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+##########条件 地市 数量
+
+ db2 "  insert into CACMain_NCPB ( CONFIRMSEQUENCENO, POLICYNO, COMPANYCODE, CITYCODE, EFFECTIVEDATE, EXPIREDATE, VIN, LICENSENO, ENGINENO, BUSINESSTYPE, REASON, DESC, FLAG, INPUTDATE)
+		select 
+		a.CONFIRMSEQUENCENO,
 		a.POLICYNO,
 		a.COMPANYCODE,
 		a.CITYCODE,
-		a.STARTDATE,
-		(case 
-			when c.PolicyConfirmNo is not null   then c.ValidDate 
-			when c.PolicyConfirmNo is  null then a.enddate 
-		end ) enddate,
-		a.STOPTRAVELTYPE,
-		a.STOPTRASTARTDATE,
-		a.STOPTRAVELENDDATE,
-		a.BIZSTATUS,
-		a.LASTPOLICONFIRMNO,
-		b.FRAMENO,
-		b.LICENSENO,
-		b.ENGINENO,
+		a.EFFECTIVEDATE,
+		a.EXPIREDATE,
+		a.VIN,
+		a.LICENSENO,
+		a.ENGINENO,
+		'3',
+		'',
+		'',
 		'0',
-		sys.extracttime, 
 		sys.extracttime
-	 from  (select current timestamp as extracttime from sysibm.sysdummy1) sys  , iacmain a
-	 inner join IATCItemCar b on a.POLICYCONFIRMNO=b.POLICYCONFIRMNO
-	 left join iaphead c on c.PolicyConfirmNo=a.POLICYCONFIRMNO and c.EndorseType = '2' 
-	where a.ENDDATE >= '2020-01-23'   
-	 
-	 "
+		from (select current timestamp as extracttime from sysibm.sysdummy1) sys  , CACMain_NCP a
+		left join CACMain_NCP b on a.CONFIRMSEQUENCENO = b.LASTPOLICYCONFIRMNO
+		where a.Flag = '0' and a.EFFECTIVEDATE <  '2020-01-23' and 
+		a.EXPIREDATE  > '2020-04-01' and ( b.EXPIREDATE >   '2020-04-01' or b.EXPIREDATE is null)
+
+		
+		"
 
 
 db2 terminate

@@ -47,39 +47,31 @@ _TBSINDEX=tbsindex
 
 ################请按照需求书写sql####################
 
-####数据量可能大，。。执行之间可能很大,  
-######假设当前保单的对应的批单中对应多条EndorseType为2的状况的数据时， 会发送sql错误，主键重复
-echo "==============================================="
-db2 "
-insert into IACMain_NCP(POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTDATE, ENDDATE, STOPTRAVELTYPE, STOPTRASTARTDATE, STOPTRAVELENDDATE, BIZSTATUS, LASTPOLICONFIRMNO, FRAMENO, LICENSENO, ENGINENO, FLAG, INPUTDATE, UPDATETIME)
 
- select 
+
+ db2 "  insert into IACMAIN_NCPB ( POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTDATE, ENDDATE, FRAMENO, LICENSENO, ENGINENO, BUSINESSTYPE, REASON, DESC, FLAG, INPUTDATE)
+		select 
 		a.POLICYCONFIRMNO,
 		a.POLICYNO,
 		a.COMPANYCODE,
 		a.CITYCODE,
 		a.STARTDATE,
-		(case 
-			when c.PolicyConfirmNo is not null   then c.ValidDate 
-			when c.PolicyConfirmNo is  null then a.enddate 
-		end ) enddate,
-		a.STOPTRAVELTYPE,
-		a.STOPTRASTARTDATE,
-		a.STOPTRAVELENDDATE,
-		a.BIZSTATUS,
-		a.LASTPOLICONFIRMNO,
-		b.FRAMENO,
-		b.LICENSENO,
-		b.ENGINENO,
+		a.ENDDATE,
+		a.FRAMENO,
+		a.LICENSENO,
+		a.ENGINENO,
+		'3',
+		'',
+		'',
 		'0',
-		sys.extracttime, 
 		sys.extracttime
-	 from  (select current timestamp as extracttime from sysibm.sysdummy1) sys  , iacmain a
-	 inner join IATCItemCar b on a.POLICYCONFIRMNO=b.POLICYCONFIRMNO
-	 left join iaphead c on c.PolicyConfirmNo=a.POLICYCONFIRMNO and c.EndorseType = '2' 
-	where a.ENDDATE >= '2020-01-23'   
-	 
-	 "
+		from (select current timestamp as extracttime from sysibm.sysdummy1) sys  , IACMain_NCP a
+		left join IACMain_NCP b on a.POLICYCONFIRMNO = b.LastPoliConfirmNo
+		where a.Flag = '0' and a.STARTDATE <  '2020-01-23' and 
+		a.ENDDATE  > '2020-04-01' and ( b.ENDDATE >   '2020-04-01' or b.ENDDATE is null)
+
+		
+		"
 
 
 db2 terminate
