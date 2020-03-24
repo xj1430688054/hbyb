@@ -36,14 +36,10 @@ db2 set schema=${_SCHEMA}
 ################以上部分不允许修改        ###############
 #参数名以下划线开始，以下部分开发人员可自行修改，并可以添加需要的参数
 ################以下脚本，根据实际情况修改###############
-echo "请输入表空间 ->"|tr -d "\012"
-#	read _TBSDATA
-_TBSDATA=tbsdata
 
-echo ""
-echo "请输入索引空间 ->"|tr -d "\012"
-#	read _TBSINDEX
-_TBSINDEX=tbsindex
+echo "请输入疫情截止日期（范例： 2020-01-23） ->"|tr -d "\012"
+#	read _CLOSINGDATA
+_STARTDATA=2020-01-23
 
 ################请按照需求书写sql####################
 
@@ -65,12 +61,12 @@ db2 "insert into CACMain_NCP(CONFIRMSEQUENCENO, POLICYNO, COMPANYCODE, CITYCODE,
 		b.VIN,
 		b.LICENSENO,
 		b.ENGINENO,
-		'0',
+		'',
 		sys.extracttime, 
-		sys.extracttime
+		null
 	 from  (select current timestamp as extracttime from sysibm.sysdummy1) sys  , cacmain a
 	 inner join CACVehicle b on a.CONFIRMSEQUENCENO=b.CONFIRMSEQUENCENO
-	where a.EXPIREDATE >= '2020-01-23' 
+	where a.EXPIREDATE >= '${_STARTDATA}' 
 	 
 	 "
 

@@ -1,0 +1,81 @@
+步骤一： 脚本一
+		新建ddl
+		
+		脚本二： 
+		导入基础数据，
+		商业：
+		insert into CACMain_NCP (字段名)
+		select  保单表和车辆表的某些字段，是否已处理标识插入默认 '0', 更新时间和数时间设置为现在  from 保单表
+		   inner join  车辆表 on  投保确认码相同
+		where 时间  > '2020-01-23'
+		   
+		交强： (其中关于 终保日期看 批单表 中是否有 业务提交类型  = '2'的，假设有赋值批单表中的生效日期， 假设没有， 还是保单表中的终保日期)
+		insert into IACMain_NCP (字段名)
+		select  保单表和车辆表的某些字段，是否已处理标识插入默认 '0', 更新时间和数时间设置为现在  from 保单表
+		   inner join  车辆表 on  投保确认码相同
+		   -----left join 批单表 c  on 投保确认码相同    业务提交类型  = '2'
+		where 时间  > '2020-01-23'
+		
+		脚本三： 
+		导入理赔后需延期保单表
+		把txt 数据导入到表中
+		
+
+步骤二：停机
+
+步骤三：脚本四 提增量数据
+
+
+步骤四：脚本5：
+        insert into CACMain_NCPB (字段名除 非延期原因，非延期原因描述)
+		select 
+		a.相关字段，
+		业务类型=3
+		提数时间等于现在的时间
+		from CACMain_NCP a
+		inner join CACMain_NCP b on a.投保确认码 = b.上张投保确认码
+		where a.是否已处理等于否 and a.终保日期 > '2020-01-23'
+		a.起保日期  < '2020-01-23' and b.终保日期 >  疫情截止日
+		and b.终保 > '2020-01-23'
+		
+		脚本6 打标
+		
+		update  CACMain_NCPB set 非延期原因= '1', 非延期原因描述 = '短期单' where （终保日期 - 起包日期 ）< 30
+		
+		update  CACMain_NCPB set 非延期原因= '2', 非延期原因描述 = 退保' 
+		where 投保确认码 exist 
+			( select 投保确认码 from CACMain_NCP where BizStatus = '退保的状态')
+			
+		update  CACMain_NCPB set 非延期原因= '3', 非延期原因描述 = '停复驶' 
+		where 投保确认码 exist (select 投保确认码 from CACMain_NCP where 停复驶状态是对的 and  （停驶始期 > '2020-01-23' or 停驶止期)
+									union 
+								select 投保确认码 from IACStopRecover where （停驶始期 > '2020-01-23' or 停驶止期)
+								)
+		
+		//尝试能不能通过一条sql 给所有本保单赋值， 如果不能  那就遍历循环本保单终所有未处理的保单
+		update  CACMain_NCPB set 非延期原因= '4', 非延期原因描述 = '存在理赔，理赔确认码' + 第一条理赔确认吗 	 
+		where 投保确认码 exist (select 投保确认码 from CAClaimPolicy_NCP where 投保确认码 not exist (select 投保确认码 from 车辆库给的表).投保确认码))
+		
+		//尝试能不能通过一条sql 给所有本保单赋值， 如果不能  那就遍历循环本保单终所有未处理的保单
+		update  CACMain_NCPB set 非延期原因= '5', 非延期原因描述 = '外省存在续保' + 外省续保确认码
+		where 投保确认码 exist (select 投保确认码 from 外省给的表  )
+		
+		//本保单对应的最后一张续保单是短期单，这一种情况可能得在脚本7处理完成后再处理，这个得在循环中
+		update  CACMain_NCPB set 非延期原因= '6', 非延期原因描述 = '最后一张续保单是短期单' + 最后一张续保单确认码
+		where 投保确认码 =（select d.投保确认吗 from  (select 保确认码 from 续保表 desc by 终保日期， 起包日期   fetch first 1 only rows ) d where 判断短期单
+		
+		
+		这些全部完成后区基础信息表中把不顺延的打上标志， 是否要给主表打标值？
+		
+步骤6 		
+		脚本7 查找续保单 续保的续保的续保。。。的保单插入到续保单表中
+步骤7   计算然后把相关数据插入到那个顺延保单表中
+
+步骤8  脚本8 先根据顺眼信息表更新主表终保日期， 顺便打上标志，（商业险打到停驶原因字段，交强险打到直接承保原因字段） 然后在基础信息表终打上已处理标识
+
+步骤9   ftp 打包
+		
+		
+		
+		   
+		   

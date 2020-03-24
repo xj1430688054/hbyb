@@ -135,11 +135,13 @@ db2 "create table CACMain_NCPX
    CityCode          VARCHAR(10) ,
    EffectiveDate TIMESTAMP ,
    ExpireDate        TIMESTAMP ,
-   LastPoliConfirmNo VARCHAR(50),
+   LastPolicyConfirmNo VARCHAR(50),
+   LastCityCode varchar(10),
    Vin   VARCHAR(50),
    LicenseNo        VARCHAR(15),
    EngineNo          VARCHAR(50),
-   BusinessType              VARCHAR(1),
+   level INTEGER  ,
+   Flag varchar(1) ,
    InputDate TIMESTAMP ,
    CONSTRAINT P_CACMain_NCPX PRIMARY KEY (SerialNo)
 ) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
@@ -157,7 +159,7 @@ echo "==============================================="
 echo "´´½¨CACMain_NCPX-LastPoliConfirmNoË÷Òý"
 echo "==============================================="
 db2 "create index IDX_CACMain_NCPX_02 on CACMain_NCPX (
-   LastPoliConfirmNo           ASC
+   LastPolicyConfirmNo           ASC
 )"
 echo "==============================================="
 
@@ -186,6 +188,7 @@ db2 "create table CACMain_NCPPostpone
    BusinessType              VARCHAR(1),
    InputDate    TIMESTAMP,
    UpdateTime  TIMESTAMP,
+   Flag varchar(1),
    ValidStatus VARCHAR(1),
    CONSTRAINT P_CACMain_NCPPostpone PRIMARY KEY (SerialNo)
 ) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"

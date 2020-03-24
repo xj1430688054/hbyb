@@ -36,14 +36,14 @@ db2 set schema=${_SCHEMA}
 ################以上部分不允许修改        ###############
 #参数名以下划线开始，以下部分开发人员可自行修改，并可以添加需要的参数
 ################以下脚本，根据实际情况修改###############
-echo "请输入表空间 ->"|tr -d "\012"
-#	read _TBSDATA
-_TBSDATA=tbsdata
-
-echo ""
-echo "请输入索引空间 ->"|tr -d "\012"
-#	read _TBSINDEX
-_TBSINDEX=tbsindex
+###echo "请输入表空间 ->"|tr -d "\012"
+####	read _TBSDATA
+###_TBSDATA=tbsdata
+###
+###echo ""
+###echo "请输入索引空间 ->"|tr -d "\012"
+####	read _TBSINDEX
+###_TBSINDEX=tbsindex
 
 ################请按照需求书写sql####################
 

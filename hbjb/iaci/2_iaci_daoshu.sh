@@ -36,9 +36,10 @@ db2 set schema=${_SCHEMA}
 ################以上部分不允许修改        ###############
 #参数名以下划线开始，以下部分开发人员可自行修改，并可以添加需要的参数
 ################以下脚本，根据实际情况修改###############
-echo "请输入表空间 ->"|tr -d "\012"
-#	read _TBSDATA
-_TBSDATA=tbsdata
+echo "请输入疫情开始日期（范例： 2020-01-23） ->"|tr -d "\012"
+#	read _CLOSINGDATA
+_STARTDATA=2020-01-23
+
 
 echo ""
 echo "请输入索引空间 ->"|tr -d "\012"
@@ -71,13 +72,13 @@ insert into IACMain_NCP(POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTD
 		b.FRAMENO,
 		b.LICENSENO,
 		b.ENGINENO,
-		'0',
+		'',
 		sys.extracttime, 
-		sys.extracttime
+		null 
 	 from  (select current timestamp as extracttime from sysibm.sysdummy1) sys  , iacmain a
 	 inner join IATCItemCar b on a.POLICYCONFIRMNO=b.POLICYCONFIRMNO
 	 left join iaphead c on c.PolicyConfirmNo=a.POLICYCONFIRMNO and c.EndorseType = '2' 
-	where a.ENDDATE >= '2020-01-23'   
+	where a.ENDDATE >= '${_STARTDATA}'   
 	 
 	 "
 

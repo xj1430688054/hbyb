@@ -36,14 +36,23 @@ db2 set schema=${_SCHEMA}
 ################以上部分不允许修改        ###############
 #参数名以下划线开始，以下部分开发人员可自行修改，并可以添加需要的参数
 ################以下脚本，根据实际情况修改###############
-echo "请输入表空间 ->"|tr -d "\012"
-#	read _TBSDATA
-_TBSDATA=tbsdata
+echo "请输入疫情开始日期（范例： 2020-01-23） ->"|tr -d "\012"
+#	read _CLOSINGDATA
+_STARTDATA=2020-01-23
+
+echo "请输入疫情截止日期（范例： 2020-04-05） ->"|tr -d "\012"
+#	read _CLOSINGDATA
+_CLOSINGDATA=2020-04-05
 
 echo ""
-echo "请输入索引空间 ->"|tr -d "\012"
-#	read _TBSINDEX
-_TBSINDEX=tbsindex
+echo "请输入本次处理的数量 （范例：500000） ->"|tr -d "\012"
+#	read _ROWS
+_ROWS=500000
+
+echo ""
+echo "请输入保单归属地， （范例， 假设是武汉 ：420101） ->"|tr -d "\012"
+#	read _ROWS
+_CITYCODE=420100
 
 ################请按照需求书写sql####################
 
@@ -51,24 +60,27 @@ _TBSINDEX=tbsindex
 
  db2 "  insert into IACMAIN_NCPB ( POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTDATE, ENDDATE, FRAMENO, LICENSENO, ENGINENO, BUSINESSTYPE, REASON, DESC, FLAG, INPUTDATE)
 		select 
-		a.POLICYCONFIRMNO,
-		a.POLICYNO,
-		a.COMPANYCODE,
-		a.CITYCODE,
-		a.STARTDATE,
-		a.ENDDATE,
-		a.FRAMENO,
-		a.LICENSENO,
-		a.ENGINENO,
-		'3',
-		'',
-		'',
-		'0',
-		sys.extracttime
+			a.POLICYCONFIRMNO,
+			a.POLICYNO,
+			a.COMPANYCODE,
+			a.CITYCODE,
+			a.STARTDATE,
+			a.ENDDATE,
+			a.FRAMENO,
+			a.LICENSENO,
+			a.ENGINENO,
+			'3',
+			'',
+			'',
+			'',
+			sys.extracttime
 		from (select current timestamp as extracttime from sysibm.sysdummy1) sys  , IACMain_NCP a
-		left join IACMain_NCP b on a.POLICYCONFIRMNO = b.LastPoliConfirmNo
-		where a.Flag = '0' and a.STARTDATE <  '2020-01-23' and 
-		a.ENDDATE  > '2020-04-01' and ( b.ENDDATE >   '2020-04-01' or b.ENDDATE is null)
+		left join IACMain_NCP b on a.LastPoliConfirmNo = b.POLICYCONFIRMNO
+		where a.Flag = '0' 
+			and a.STARTDATE <  '${_STARTDATA}' 
+			and a.ENDDATE  > '${_CLOSINGDATA}' 
+			and ( b.ENDDATE <   '${_STARTDATA}' or b.ENDDATE is null)
+			and a.CITYCODE = '${_CITYCODE}'
 
 		
 		"

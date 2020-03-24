@@ -134,9 +134,12 @@ db2 "create table IACMain_NCPX
 	StartDate 	TIMESTAMP ,
 	EndDate 	TIMESTAMP ,
 	LastPoliConfirmNo	VARCHAR(50),
+	LastCityCode varchar(10),
 	FrameNo 	VARCHAR(50),
 	LicenseNo 	VARCHAR(15),
 	EngineNo 	VARCHAR(50),
+	Level INTEGER,
+	Flag varchar(1),
 	InputDate	TIMESTAMP ,
    CONSTRAINT P_IACMain_NCPX PRIMARY KEY (SerialNo)
 ) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
@@ -161,7 +164,7 @@ echo "==============================================="
 
 echo "==============================================="
 echo "创建IACMain_NCPPostpone-疫情期顺延保险信息表"
-echo "==============================================="
+echo "===============================================" 
 db2 "create table IACMain_NCPPostpone
 (
 	SerialNo	INTEGER  NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1 ),
@@ -182,6 +185,7 @@ db2 "create table IACMain_NCPPostpone
 	EngineNo 	VARCHAR(50),
 	BusinessType	VARCHAR(1),
 	InputDate	TIMESTAMP ,
+	Flag varchar(1),
 	UpdateTime	TIMESTAMP ,
 	ValidStatus 	VARCHAR(1),
    CONSTRAINT P_IACMain_NCPPostpone PRIMARY KEY (SerialNo)
@@ -197,7 +201,7 @@ db2 "create index IDX_IACMain_NCPPostpone_01 on IACMain_NCPPostpone (
 echo "==============================================="
 
 echo "==============================================="
-echo "创建IACMain_NCPPostpone-LastPolicyConfirmNo索引"
+echo "创建IACMain_NCPPostpone-LastPoliConfirmNo索引"
 echo "==============================================="
 db2 "create index IACMain_NCPPostpone_02 on IACMain_NCPPostpone (
    LastPoliConfirmNo           ASC

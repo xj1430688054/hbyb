@@ -36,23 +36,28 @@ db2 set schema=${_SCHEMA}
 ################以上部分不允许修改        ###############
 #参数名以下划线开始，以下部分开发人员可自行修改，并可以添加需要的参数
 ################以下脚本，根据实际情况修改###############
-echo "请输入表空间 ->"|tr -d "\012"
+echo "请输入 ->"|tr -d "\012"
 #	read _TBSDATA
 _TBSDATA=tbsdata
 
 echo ""
-echo "请输入索引空间 ->"|tr -d "\012"
-#	read _TBSINDEX
-_TBSINDEX=tbsindex
+echo "请输入保单归属地， （范例， 假设是武汉 ：420101） ->"|tr -d "\012"
+#	read _ROWS
+_CITYCODE=420100
 
 ################请按照需求书写sql####################
 
 
 ##本次保单的投保确认码IACMain_B
-PolicyConfirmNo=`db2 -x  "select distinct POLICYCONFIRMNO from IACMain_NCPB"`
+PolicyConfirmNo=`db2 -x  "	select 
+								distinct POLICYCONFIRMNO 
+							from IACMain_NCPB  
+							where reason = '' 
+								and flag = '' 
+								and  citycode = '${_CITYCODE}'"`
 
 echo "${PolicyConfirmNo}"
-echo "本次保单的续保保单"
+echo "本次保单的续保保单" 
 ##保存旧的分隔符
 OLD_IFS="$IFS"
 ##分隔符设置成空格
@@ -67,7 +72,7 @@ IFS="$OLD_IFS"
 for X_PolicyConfirmNo in ${array[@]}
 do
 echo "${X_PolicyConfirmNo}"
-db2  "insert into IACMAIN_NCPX ( POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTDATE, ENDDATE, LASTPOLICONFIRMNO, FRAMENO, LICENSENO, ENGINENO, INPUTDATE) 
+db2  "insert into IACMAIN_NCPX ( POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTDATE, ENDDATE, LASTPOLICONFIRMNO, LASTCITYCODE, FRAMENO, LICENSENO, ENGINENO, LEVEL, FLAG, INPUTDATE) 
 	select 
 		a.POLICYCONFIRMNO, 
 		a.PolicyNo, 
@@ -76,11 +81,14 @@ db2  "insert into IACMAIN_NCPX ( POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCOD
 		a.STARTDATE, 
 		a.ENDDATE, 
 		'${X_PolicyConfirmNo}',
+		'${_CITYCODE}',
 		a.FRAMENO,
 		a.LicenseNo, 
 		a.EngineNo,
+		'1',
+		'',
 		sys.extracttime
-		from IACMain_NCP a, (select current timestamp as extracttime from sysibm.sysdummy1) sys
+		from (select current timestamp as extracttime from sysibm.sysdummy1) sys, IACMain_NCP a
 	where a.LastPoliConfirmNo = '${X_PolicyConfirmNo}' 
 	"
 
@@ -91,20 +99,33 @@ done
 
 
 #######查找续保单的续保单。。。。。。
-i=0;
+i=1;
 echo "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
 echo "----------------------------------------------------续保单-------------------------------------------------------------------------------------------"
 echo "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
 echo "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
 while true
 do	
-		i=$[i+1];
-		###查询第几层续保单 ,需要再条件种加入第几层
+		
+		###查询第几层续保单 ,假设多个地区并行实行 并且公用一套表会有问题。
+		###查询第几层续保单 ,假设多个地区并行实行 并且公用一套表会有问题。
+		###查询第几层续保单 ,假设多个地区并行实行 并且公用一套表会有问题。
+		###查询第几层续保单 ,假设多个地区并行实行 并且公用一套表会有问题。
+		###查询第几层续保单 ,假设多个地区并行实行 并且公用一套表会有问题。
+		###查询第几层续保单 ,假设多个地区并行实行 并且公用一套表会有问题。
 		XuPolicyConfirmNo=`db2 -x  "	select 
 										a.PolicyConfirmNo 
 									from IACMain_NCPX a 
-										inner join IACMain_NCP b on a.PolicyConfirmNo  = b.LastPoliConfirmNo"`
-	echo	${XuPolicyConfirmNo}
+										inner join IACMain_NCP b on a.PolicyConfirmNo  = b.LastPoliConfirmNo 
+																	and b.flag = ''  
+																	and a.lastcitycode = '${_CITYCODE}' 
+																	and a.flag = ''
+									where a.level = '${i}'
+										  "`
+										  
+	db2 "update IACMain_NCPX a set flag = '1' where a.flag = '' and citycode = '${_CITYCODE}' "
+	echo "第${i}层续保单${XuPolicyConfirmNo}"
+	echo "-----------------------------------------------------------------------"
 	
 	if [  -z "$XuPolicyConfirmNo" ]
     then
@@ -118,11 +139,12 @@ do
 	arrays=($XuPolicyConfirmNo)
 	##变成原来的分隔符
 	IFS="$OLD_IFS"
+	i=$[i+1];
 	
-	for Xu_PolicyConfirmNo in ${array[@]}
+	for Xu_PolicyConfirmNo in ${arrays[@]}
 	do
-	echo "${X_PolicyConfirmNo}"
-	db2  "insert into IACMAIN_NCPX ( POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTDATE, ENDDATE, LASTPOLICONFIRMNO, FRAMENO, LICENSENO, ENGINENO, INPUTDATE) 
+	echo "${Xu_PolicyConfirmNo}"
+	db2  "insert into IACMAIN_NCPX ( POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTDATE, ENDDATE, LASTPOLICONFIRMNO, LASTCITYCODE, FRAMENO, LICENSENO, ENGINENO, LEVEL, INPUTDATE) 
 		select 
 			a.POLICYCONFIRMNO, 
 			a.PolicyNo, 
@@ -131,13 +153,15 @@ do
 			a.STARTDATE, 
 			a.ENDDATE, 
 			b.LastPoliConfirmNo,
+			'${_CITYCODE}',
 			a.FRAMENO,
 			a.LicenseNo, 
 			a.EngineNo,
+			'${i}',
 			sys.extracttime
-			from IACMain_NCP a, (select current timestamp as extracttime from sysibm.sysdummy1) sys
-			left join IACMain_NCPX b on a.POLICYCONFIRMNO = b.POLICYCONFIRMNO
-		where a.LASTPOLICONFIRMNO = '${X_PolicyConfirmNo}' 
+			from (select current timestamp as extracttime from sysibm.sysdummy1) sys, IACMain_NCP a
+			left join IACMain_NCPX b on a.LastPoliConfirmNo = b.POLICYCONFIRMNO
+		where a.LASTPOLICONFIRMNO = '${Xu_PolicyConfirmNo}' 
 		"
 
 	done
