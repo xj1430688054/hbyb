@@ -61,11 +61,25 @@ _CITYCODE=420100
 ##假设跨疫情期间的保单存在两种保单续保 主键？
 
 ##########数量
-echo "当前需要处理的数量是 : ${_ROWS}"
-
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
+##########数量
 
  db2 "  insert into CACMain_NCPB ( CONFIRMSEQUENCENO, POLICYNO, COMPANYCODE, CITYCODE, EFFECTIVEDATE, EXPIREDATE, VIN, LICENSENO, ENGINENO, BUSINESSTYPE, REASON, DESC, FLAG, INPUTDATE)
-		(
 		select 
 		a.CONFIRMSEQUENCENO,
 		a.POLICYNO,
@@ -76,44 +90,17 @@ echo "当前需要处理的数量是 : ${_ROWS}"
 		a.VIN,
 		a.LICENSENO,
 		a.ENGINENO,
-		'3',
+		'2',
 		'',
 		'',
 		'',
 		sys.extracttime
 		from (select current timestamp as extracttime from sysibm.sysdummy1) sys  , CACMain_NCP a
 		left join CACMain_NCP b on a.LASTPOLICYCONFIRMNO = b.CONFIRMSEQUENCENO
-		where a.Flag = '' 
-			and a.EFFECTIVEDATE <  '${_STARTDATA}' 
-			and a.EXPIREDATE  > '${_CLOSINGDATA}' 
-			and ( b.EXPIREDATE <   '${_STARTDATA}' or b.EXPIREDATE is null)
+		where a.Flag = '0' 
+			and a.EffectiveDate >  '${_STARTDATA}' 
 			and a.CITYCODE = '${_CITYCODE}'
 
-		union	
-		select 
-			a.CONFIRMSEQUENCENO,
-			a.POLICYNO,
-			a.COMPANYCODE,
-			a.CITYCODE,
-			a.EFFECTIVEDATE,
-			a.EXPIREDATE,
-			a.VIN,
-			a.LICENSENO,
-			a.ENGINENO,
-			'2',
-			'',
-			'',
-			'',
-			sys.extracttime
-		from (select current timestamp as extracttime from sysibm.sysdummy1) sys  , CACMain_NCP a
-		left join CACMain_NCP b on a.LASTPOLICYCONFIRMNO = b.CONFIRMSEQUENCENO
-		where a.Flag = '0' 
-			and a.EffectiveDate >  '${_STARTDATA}'  
-			and a.EffectiveDate < '${_CLOSINGDATA}'
-			and ( b.EXPIREDATE <   '${_STARTDATA}' or b.EXPIREDATE is null)
-			and a.CITYCODE = '${_CITYCODE}'
-			
-			) fetch first ${_ROWS} row only
 		
 		"
 

@@ -47,7 +47,7 @@ _CLOSINGDATA=2020-04-05
 echo ""
 echo "请输入本次处理的数量 （范例：500000） ->"|tr -d "\012"
 #	read _ROWS
-_ROWS=500000
+_ROWS=500
 
 echo ""
 echo "请输入保单归属地， （范例， 假设是武汉 ：420101） ->"|tr -d "\012"
@@ -55,6 +55,8 @@ echo "请输入保单归属地， （范例， 假设是武汉 ：420101） ->"|tr -d "\012"
 _CITYCODE=420100
 
 ################请按照需求书写sql####################
+
+echo "这次需要处理的数量${_ROWS}"
 
 
 
@@ -76,11 +78,38 @@ _CITYCODE=420100
 			sys.extracttime
 		from (select current timestamp as extracttime from sysibm.sysdummy1) sys  , IACMain_NCP a
 		left join IACMain_NCP b on a.LastPoliConfirmNo = b.POLICYCONFIRMNO
-		where a.Flag = '0' 
+		where a.Flag = '' 
 			and a.STARTDATE <  '${_STARTDATA}' 
 			and a.ENDDATE  > '${_CLOSINGDATA}' 
 			and ( b.ENDDATE <   '${_STARTDATA}' or b.ENDDATE is null)
 			and a.CITYCODE = '${_CITYCODE}'
+			
+		union
+		
+		select 
+			a.POLICYCONFIRMNO,
+			a.POLICYNO,
+			a.COMPANYCODE,
+			a.CITYCODE,
+			a.STARTDATE,
+			a.ENDDATE,
+			a.FRAMENO,
+			a.LICENSENO,
+			a.ENGINENO,
+			'3',
+			'',
+			'',
+			'',
+			sys.extracttime
+		from (select current timestamp as extracttime from sysibm.sysdummy1) sys  , IACMain_NCP a
+		left join IACMain_NCP b on a.LastPoliConfirmNo = b.POLICYCONFIRMNO
+		where a.Flag = '' 
+			and a.STARTDATE <  '${_STARTDATA}' 
+			and a.STARTDATE  > '${_CLOSINGDATA}' 
+			and ( b.ENDDATE <   '${_STARTDATA}' or b.ENDDATE is null)
+			and a.CITYCODE = '${_CITYCODE}'
+			
+			
 
 		
 		"

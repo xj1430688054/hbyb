@@ -45,7 +45,7 @@ _CITYCODE=420100
 ################请按照需求书写sql####################
 
 ##本次保单的投保确认码CACMain_B
-PolicyConfirmNo=`db2 -x  "select distinct CONFIRMSEQUENCENO from CACMain_NCPB  where reason = '' Flag = '' and flag = '' and citycode = '{_CITYCODE}'"`
+PolicyConfirmNo=`db2 -x  "select distinct CONFIRMSEQUENCENO from CACMain_NCPB  where reason = ''and  Flag = '' and flag = '' and citycode = '${_CITYCODE}'"`
 
 echo "${PolicyConfirmNo}"
 echo "本次保单的续保保单"
@@ -72,7 +72,7 @@ db2  "insert into CACMAIN_NCPX ( CONFIRMSEQUENCENO, POLICYNO, COMPANYCODE, CITYC
 		a.EFFECTIVEDATE, 
 		a.EXPIREDATE, 
 		'${X_PolicyConfirmNo}',
-		'{_CITYCODE}',
+		'${_CITYCODE}',
 		a.vin,
 		a.LicenseNo, 
 		a.EngineNo,
@@ -103,21 +103,22 @@ do
 										a.CONFIRMSEQUENCENO
 									from CACMain_NCPX a 
 										inner join CACMain_NCP b on a.CONFIRMSEQUENCENO = b.LastPolicyConfirmNo
-																	and b.flag = '0'  
+																	and b.flag = ''  
 																	and a.lastcitycode = '${_CITYCODE}' 
-																	and a.flag = '0'
+																	and a.flag = ''
 									where a.level = '${i}'"`
 	
 	db2 "update CACMain_NCPX a set a.flag = '1' where a.flag = '' and citycode = '${_CITYCODE}' "
 	
-	echo "第${i}层续保单${XuPolicyConfirmNo}"
-	echo "-----------------------------------------------------------------------"
+
 										
 	if [  -z "${XuPolicyConfirmNo}" ]
     then
 		break;
-
     fi
+	
+	echo "第${i}层续保单${XuPolicyConfirmNo}"
+	echo "-----------------------------------------------------------------------"
 	
 	##保存旧的分隔符
 	OLD_IFS="$IFS"
@@ -139,16 +140,16 @@ do
 			a.CityCode, 
 			a.EFFECTIVEDATE, 
 			a.EXPIREDATE, 
-			b.LastPoliConfirmNo,
-			'${_CITYCODE}'
+			b.LastPolicyConfirmNo,
+			'${_CITYCODE}',
 			a.vin,
 			a.LicenseNo, 
 			a.EngineNo,
 			'${i}', 
 			'',
 			sys.extracttime
-			from (select current timestamp as extracttime from sysibm.sysdummy1) sys , CACMain_NCP a
-			left join CACMain_NCPX b on a.LastPolicyConfirmNo = b.CONFIRMSEQUENCENO
+			from (select current timestamp as extracttime from sysibm.sysdummy1) sys , CACMain_NCP a,
+			(select e.LastPolicyConfirmNo  from CACMain_NCPX e where e.CONFIRMSEQUENCENO = '${Xu_PolicyConfirmNo}'  fetch first 1 row only) b
 		where a.LastPolicyConfirmNo = '${Xu_PolicyConfirmNo}' 
 		"
 

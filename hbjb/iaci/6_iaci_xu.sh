@@ -144,7 +144,7 @@ do
 	for Xu_PolicyConfirmNo in ${arrays[@]}
 	do
 	echo "${Xu_PolicyConfirmNo}"
-	db2  "insert into IACMAIN_NCPX ( POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTDATE, ENDDATE, LASTPOLICONFIRMNO, LASTCITYCODE, FRAMENO, LICENSENO, ENGINENO, LEVEL, INPUTDATE) 
+	db2  "insert into IACMAIN_NCPX ( POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTDATE, ENDDATE, LASTPOLICONFIRMNO, LASTCITYCODE, FRAMENO, LICENSENO, ENGINENO, LEVEL, FLAG, INPUTDATE) 
 		select 
 			a.POLICYCONFIRMNO, 
 			a.PolicyNo, 
@@ -158,9 +158,10 @@ do
 			a.LicenseNo, 
 			a.EngineNo,
 			'${i}',
+			'',
 			sys.extracttime
-			from (select current timestamp as extracttime from sysibm.sysdummy1) sys, IACMain_NCP a
-			left join IACMain_NCPX b on a.LastPoliConfirmNo = b.POLICYCONFIRMNO
+			from (select current timestamp as extracttime from sysibm.sysdummy1) sys, IACMain_NCP a, 
+			(select e.LastPoliConfirmNo  from IACMain_NCPX e where e.POLICYCONFIRMNO = '${Xu_PolicyConfirmNo}'  fetch first 1 row only) b
 		where a.LASTPOLICONFIRMNO = '${Xu_PolicyConfirmNo}' 
 		"
 
