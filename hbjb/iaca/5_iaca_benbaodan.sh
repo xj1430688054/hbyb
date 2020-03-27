@@ -58,10 +58,12 @@ _CITYCODE=420100
 
 ################请按照需求书写sql####################
 
-##假设跨疫情期间的保单存在两种保单续保 主键？
 
 ##########数量
 echo "当前需要处理的数量是 : ${_ROWS}"
+
+
+confirmsequences=`db2 -x "select distinct CONFIRMSEQUENCENO from cacmain_ncp where "`
 
 
  db2 "  insert into CACMain_NCPB ( CONFIRMSEQUENCENO, POLICYNO, COMPANYCODE, CITYCODE, EFFECTIVEDATE, EXPIREDATE, VIN, LICENSENO, ENGINENO, BUSINESSTYPE, REASON, DESC, FLAG, INPUTDATE)
