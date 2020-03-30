@@ -313,7 +313,7 @@ echo "==============================================="
 echo "==============================================="
 echo "´´½¨KSClaim_NCP-CONFIRMSEQUENCENOË÷Òý"
 echo "==============================================="
-db2 "create index IDX_KSClaim_NCP_01 on KSClaim_NCP (
+db2 "create index IDX_KSClaim_NCP_02 on KSClaim_NCP (
    CONFIRMSEQUENCENO           ASC
 )"
 echo "==============================================="
