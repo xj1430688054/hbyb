@@ -62,17 +62,17 @@ _NOFLAG1=`db2 -x "select count(*) from iacmain_ncp where flag = '' and citycode 
 echo "当前省需要处理的数量是 : ${_ROWS}"
 echo "当前省总共未处理的数量是： ${_NOFLAG}"
 
-PolicyConfirmNo=`db2 -x  "select PolicyConfirmNo from IACMain_NCP where citycode = '${_CITYCODE}' and flag = '' order by startDate fetch first ${_ROWS} rows only"`
-echo "${PolicyConfirmNo}"
-#保存旧的分隔符
-OLD_IFS="$IFS"
-#分隔符设置成空格
-IFS=" "
-array=($PolicyConfirmNo)
-#变成原来的分隔符
-IFS="$OLD_IFS"
-for B_PolicyConfirmNo in ${array[@]}
-do
+#PolicyConfirmNo=`db2 -x  "select PolicyConfirmNo from IACMain_NCP where citycode = '${_CITYCODE}' and flag = '' order by startDate fetch first ${_ROWS} rows only"`
+#echo "${PolicyConfirmNo}"
+##保存旧的分隔符
+#OLD_IFS="$IFS"
+##分隔符设置成空格
+#IFS=" "
+#array=($PolicyConfirmNo)
+##变成原来的分隔符
+#IFS="$OLD_IFS"
+#for B_PolicyConfirmNo in ${array[@]}
+#do
 
 db2 "insert into IACMAIN_NCPB(POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTDATE, ENDDATE, FRAMENO, LICENSENO, ENGINENO, BUSINESSTYPE, REASON, DESC, FLAG, INPUTDATE)
 	select 
@@ -99,9 +99,12 @@ db2 "insert into IACMAIN_NCPB(POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, 
 		where
 			a.startDate < '${_CLOSINGDATA}' and
 			((((values days(date(b.endDate))- days(date(b.startDate))) <= 30 or b.BizStatus != '1') and b.Flag = '1' ) or 
-			(a.LastPoliConfirmNo = ''or a.LastPoliConfirmNo is null)) and a.POLICYCONFIRMNO = '${B_PolicyConfirmNo}'"
+			(a.LastPoliConfirmNo = ''or a.LastPoliConfirmNo is null)) and a.flag='' and a.citycode = '${_CITYCODE}'
+			fetch first ${_ROWS} row only
+			"
+			#a.POLICYCONFIRMNO = '${B_PolicyConfirmNo}'
 
-done
+#done
 
 
 #短期单

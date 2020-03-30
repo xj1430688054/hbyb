@@ -11,20 +11,23 @@ date
 ##########################################################
 
 echo "请输入数据库名 ->"|tr -d "\012"
-#read _DBNAME
-_DBNAME=iaca42db	
+    read _DBNAME
+#_DBNAME=iaca42db	
+	
+	
 echo ""    
 echo "请输入数据库用户 ->"|tr -d "\012"
-#    read _DBUSER
-_DBUSER=instiaci	
+    read _DBUSER
+#_DBUSER=instiaci
+	
 echo ""    	
 echo "请输入数据库用户密码 ->"|tr -d "\012"
-#    read _PWD
-_PWD=password	
+    read _PWD
+#_PWD=password
+	
 echo ""    
 echo "请输入schema名 ->"|tr -d "\012"
-#    read _SCHEMA
-_SCHEMA=instiaci
+    read _SCHEMA
 
 
 db2 connect to ${_DBNAME} user ${_DBUSER}   using ${_PWD}
@@ -42,8 +45,8 @@ _CLOSINGDAT=`echo ${_CLOSINGDAT} | tr -d ' '`
 
 echo ""
 echo "请输入上次提数时间 ->"| tr -d "\012"
-#	read _LASTDATE
-_LASTDATE='2020-02-02'
+	read _LASTDATE
+#_LASTDATE='2020-02-02'
 
 #更新基础表数据
 echo "--------------------------"
@@ -71,7 +74,7 @@ select
 		where c3.CONFIRMDATE > '${_LASTDATE}' 
 		and c3.UnderwriteReason != '3' 
 		and c3.CONFIRMSEQUENCENO = c4.CONFIRMSEQUENCENO
-		and c4.Flag != '1'
+		and c4.Flag = ''
 			union
 		select c1.CONFIRMSEQUENCENO from CAPHEAD c1 left join CACMain_NCP c2 on c1.CONFIRMSEQUENCENO = c2.CONFIRMSEQUENCENO 
 		where c1.CONFIRMDATE > '${_LASTDATE}')c7,
@@ -113,7 +116,7 @@ insert into CACMain_NCP(ConfirmSequenceNo, POLICYNO, COMPANYCODE, CityCode, Effe
 		b.Vin,
 		b.LicenseNo,
 		b.EngineNo,
-		'0',
+		'',
 		sys.extracttime
 	from (select current timestamp as extracttime from sysibm.sysdummy1) sys,
 	CACMain a 

@@ -11,42 +11,56 @@ date
 ##########################################################
 
 echo "请输入数据库名 ->"|tr -d "\012"
-#read _DBNAME
-_DBNAME=iaca42db
+    read _DBNAME
+#_DBNAME=iaca42db	
+	
+	
 echo ""    
 echo "请输入数据库用户 ->"|tr -d "\012"
-#    read _DBUSER
-_DBUSER=instiaci	
+    read _DBUSER
+#_DBUSER=instiaci
+	
 echo ""    	
 echo "请输入数据库用户密码 ->"|tr -d "\012"
-#    read _PWD
-_PWD=password	
+    read _PWD
+#_PWD=password
+	
 echo ""    
 echo "请输入schema名 ->"|tr -d "\012"
-#    read _SCHEMA
-_SCHEMA=instiaci
+    read _SCHEMA
+
 db2 connect to ${_DBNAME} user ${_DBUSER}   using ${_PWD}
 db2 set schema=${_SCHEMA}
 
 
 ################以上部分不允许修改        ###############
-_AREACODE=`db2 -x  "select PARAMETERVALUE from IADsysConfig where PARAMETERCODE = 'AreaCode'"`
+_AREACODE=`db2 -x  "select PARAMETERVALUE from CADsysConfig where PARAMETERCODE = 'AreaCode'"`
 _AREACODE=`echo ${_AREACODE} | tr -d ' '`
+echo "地区代码为 ： ${_AREACODE}"
 ################以下脚本，根据实际情况修改###############
 #参数名以下划线开始，以下部分开发人员可自行修改，并可以添加需要的参数
 
 
 #更新险种信息表
 db2 "merge into CACCoverage a using 
-			(select ConfirmSequenceNo,CoverageCode,AfterExpireDate from CACCoverage_NCPPostpone where CACCoverage_NCPPostpone.Flag != '1') b 
+			(select ConfirmSequenceNo,CoverageCode,AfterExpireDate from CACCoverage_NCPPostpone) b 
 				on (a.ConfirmSequenceNo = b.ConfirmSequenceNo 
 				and a.CoverageCode = b.CoverageCode)  
 				when MATCHED then update  set ExpireDate = b.AfterExpireDate
 				else ignore
 "
+##更新承保表数据
+#db2 "merge into CACMAIN a 
+#		using  (select ConfirmSequenceNo  from CACCoverage_NCPPostpone where CACCoverage_NCPPostpone.Flag != '1') b 
+#		on a.ConfirmSequenceNo = b.ConfirmSequenceNo 
+#		when matched 
+#			then update set ExpireDate = b.AfterExpireDate ,a.UnderwriteReason = '3'
+#			else ignore
+#"
+
 #更新承保表数据
 db2 "merge into CACMAIN a 
-		using  (select ConfirmSequenceNo  from CACCoverage_NCPPostpone where CACCoverage_NCPPostpone.Flag != '1') b 
+		using  (select ConfirmSequenceNo , AfterExpireDate from CACMain_NCPPostpone where CACMain_NCPPostpone.Flag != '1') b 
 		on a.ConfirmSequenceNo = b.ConfirmSequenceNo 
 		when matched 
 			then update set ExpireDate = b.AfterExpireDate ,a.UnderwriteReason = '3'
@@ -56,7 +70,7 @@ db2 "merge into CACMAIN a
 
 #更新基础数据表中续保单的状态
 #续保保单投保确认码	
-X_PolicyConfirmNo='db2 -x  "select c1.CONFIRMSEQUENCENO from CACMain_NCP c1 ,CACMain_NCPX c2 where c1.CONFIRMSEQUENCENO = c2.LASTPOLICONFIRMNO and c1.Flag != '1' "'
+X_PolicyConfirmNo=`db2 -x  "select c1.CONFIRMSEQUENCENO from CACMain_NCP c1 ,CACMain_NCPX c2 where c1.CONFIRMSEQUENCENO = c2.LASTPOLICYCONFIRMNO and c1.Flag != '1' "`
 echo "${X_PolicyConfirmNo}"
 echo "投保确认码"
 #保存旧的分隔符
@@ -75,8 +89,8 @@ db2 "update CACMain_NCP set  Flag = '1' where  ConfirmSequenceNo = '${X_PolicyCo
 done	
 
 #获取投保确认码
-CONFIRMSEQUENCENO='db2 -x  "select CONFIRMSEQUENCENO from CACMain_NCPPostpone where LastPolicyConfirmNo = '' and CACMain_NCPPostpone.Flag != '1'
-union select LastPolicyConfirmNo as  CONFIRMSEQUENCENO from CACMain_NCPPostpone where LastPolicyConfirmNo != '' and CACMain_NCPPostpone.Flag != '1'"'
+CONFIRMSEQUENCENO=`db2 -x  "select CONFIRMSEQUENCENO from CACMain_NCPPostpone where LastPolicyConfirmNo = '' and CACMain_NCPPostpone.Flag != '1'
+union select LastPolicyConfirmNo as  CONFIRMSEQUENCENO from CACMain_NCPPostpone where LastPolicyConfirmNo != '' and CACMain_NCPPostpone.Flag != '1'"`
 
 echo "${CONFIRMSEQUENCENO}"
 echo "投保确认码"
@@ -91,9 +105,9 @@ IFS="2020/3/16"
 for NCP_CONFIRMSEQUENCENO in ${array[@]}
 do
 echo "更新基础数据表中本报单、顺延保单、本报单信息表  投保确认码为：${NCP_CONFIRMSEQUENCENO}"
-db2 "update CACMain_NCP set  Flag = '1' where   CONFIRMSEQUENCENO = '${NCP_CONFIRMSEQUENCENO}"
+db2 "update CACMain_NCP set  Flag = '1' where   CONFIRMSEQUENCENO = '${NCP_CONFIRMSEQUENCENO}'"
 #更新顺延保单表数据
-db2 "update CACMain_NCPPostpone set  Flag = '1' where   CONFIRMSEQUENCENO = '${NCP_CONFIRMSEQUENCENO}"
+db2 "update CACMain_NCPPostpone set  Flag = '1' where   CONFIRMSEQUENCENO = '${NCP_CONFIRMSEQUENCENO}'"
 #更新本报单数据
 db2 "update CACMain_NCPB set Flag = '1' where   CONFIRMSEQUENCENO = '${NCP_CONFIRMSEQUENCENO}' "
 done	

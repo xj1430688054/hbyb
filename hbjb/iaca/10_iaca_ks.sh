@@ -49,6 +49,12 @@ echo "请输入跨省续理赔数据文件名称 (例：lipei.txt  输入lipei)->"|tr -d "\012"
 ##当前路劲
 DATAPATH=$(cd $(dirname $0); pwd)
 
+
+echo "清空表"
+db2 "delete from KSCMain_NCP"
+db2 "delete from KSClaim_NCP"
+
+
 echo "导入跨省续保数据到临时表..." 
 date   
 echo "从"${_XUBAOFILENAME}"中提取到PRECISIONSCORE......"
