@@ -11,24 +11,24 @@ date
 ##########################################################
 
 echo "请输入数据库名 ->"|tr -d "\012"
-  #  read _DBNAME
-_DBNAME=iaci42db	
+    read _DBNAME
+#_DBNAME=iaci42db	
 	
 	
 echo ""    
 echo "请输入数据库用户 ->"|tr -d "\012"
- #   read _DBUSER
-_DBUSER=instiaci
+    read _DBUSER
+#_DBUSER=instiaci
 	
 echo ""    	
 echo "请输入数据库用户密码 ->"|tr -d "\012"
- #   read _PWD
-_PWD=password
+    read _PWD
+#_PWD=password
 	
 echo ""    
 echo "请输入schema名 ->"|tr -d "\012"
-  #  read _SCHEMA
-_SCHEMA=instiaci
+    read _SCHEMA
+#_SCHEMA=instiaci
 
 db2 connect to ${_DBNAME} user ${_DBUSER}   using ${_PWD}
 db2 set schema=${_SCHEMA}
@@ -37,26 +37,30 @@ db2 set schema=${_SCHEMA}
 #参数名以下划线开始，以下部分开发人员可自行修改，并可以添加需要的参数
 ################以下脚本，根据实际情况修改###############
 echo "请输入疫情开始日期（范例： 2020-01-23） ->"|tr -d "\012"
-#	read _CLOSINGDATA
-_STARTDATA=2020-05-20
+	read _STARTDATA
+#_STARTDATA=2020-05-20
 
 echo "请输入疫情截止日期（范例： 2020-04-05） ->"|tr -d "\012"
-#	read _CLOSINGDATA
-_CLOSINGDATA=2022-04-05
+	read _CLOSINGDATA
+#_CLOSINGDATA=2022-04-05
 
 echo ""
 echo "请输入本次处理的数量 （范例：500000） ->"|tr -d "\012"
-#	read _ROWS
-_ROWS=500000
+	read _ROWS
+#_ROWS=500000
 
 echo ""
-echo "请输入保单归属地， （范例， 假设是武汉 ：420101） ->"|tr -d "\012"
-#	read _ROWS
-_CITYCODE=420300
+echo "请输入保单归属地， （范例， 假设是武汉 ：420100） ->"|tr -d "\012"
+	read _CITYCODE
+#_CITYCODE=420300
 
 
 
 ################请按照需求书写sql####################
+_NOFLAG=`db2 -x "select count(*) from iacmain_ncp where flag = ''"`
+_NOFLAG1=`db2 -x "select count(*) from iacmain_ncp where flag = '' and citycode = '${_CITYCODE}'"`
+echo "当前省需要处理的数量是 : ${_ROWS}"
+echo "当前省总共未处理的数量是： ${_NOFLAG}"
 
 PolicyConfirmNo=`db2 -x  "select PolicyConfirmNo from IACMain_NCP where citycode = '${_CITYCODE}' and flag = '' order by startDate fetch first ${_ROWS} rows only"`
 echo "${PolicyConfirmNo}"
@@ -94,7 +98,7 @@ db2 "insert into IACMAIN_NCPB(POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, 
 		from IACMain_NCP a left join IACMain_NCP b on a.LastPoliConfirmNo = b.PolicyConfirmNo
 		where
 			a.startDate < '${_CLOSINGDATA}' and
-			((((values days(date(b.endDate))- days(date(b.startDate))) < 30 or b.BizStatus != '1') and b.Flag = '1' ) or 
+			((((values days(date(b.endDate))- days(date(b.startDate))) <= 30 or b.BizStatus != '1') and b.Flag = '1' ) or 
 			(a.LastPoliConfirmNo = ''or a.LastPoliConfirmNo is null)) and a.POLICYCONFIRMNO = '${B_PolicyConfirmNo}'"
 
 done

@@ -11,24 +11,24 @@ date
 ##########################################################
 
 echo "请输入数据库名 ->"|tr -d "\012"
-  #  read _DBNAME
-_DBNAME=iaci42db	
+    read _DBNAME
+#_DBNAME=iaci42db	
 	
 	
 echo ""    
 echo "请输入数据库用户 ->"|tr -d "\012"
- #   read _DBUSER
-_DBUSER=instiaci
+    read _DBUSER
+#_DBUSER=instiaci
 	
 echo ""    	
 echo "请输入数据库用户密码 ->"|tr -d "\012"
- #   read _PWD
-_PWD=password
+    read _PWD
+#_PWD=password
 	
 echo ""    
 echo "请输入schema名 ->"|tr -d "\012"
-  #  read _SCHEMA
-_SCHEMA=instiaci
+    read _SCHEMA
+#_SCHEMA=instiaci
 
 db2 connect to ${_DBNAME} user ${_DBUSER}   using ${_PWD}
 db2 set schema=${_SCHEMA}

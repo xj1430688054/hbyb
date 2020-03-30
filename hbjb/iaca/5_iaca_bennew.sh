@@ -11,24 +11,24 @@ date
 ##########################################################
 
 echo "请输入数据库名 ->"|tr -d "\012"
-  #  read _DBNAME
-_DBNAME=iaca42db	
+    read _DBNAME
+#_DBNAME=iaca42db	
 	
 	
 echo ""    
 echo "请输入数据库用户 ->"|tr -d "\012"
- #   read _DBUSER
-_DBUSER=instiaci
+    read _DBUSER
+#_DBUSER=instiaci
 	
 echo ""    	
 echo "请输入数据库用户密码 ->"|tr -d "\012"
- #   read _PWD
-_PWD=password
+    read _PWD
+#_PWD=password
 	
 echo ""    
 echo "请输入schema名 ->"|tr -d "\012"
-  #  read _SCHEMA
-_SCHEMA=instiaci
+    read _SCHEMA
+#_SCHEMA=instiaci
 
 db2 connect to ${_DBNAME} user ${_DBUSER}   using ${_PWD}
 db2 set schema=${_SCHEMA}
@@ -38,23 +38,23 @@ db2 set schema=${_SCHEMA}
 ################以下脚本，根据实际情况修改###############
 
 echo "请输入疫情截止日期（范例： 2020-01-23） ->"|tr -d "\012"
-#	read _CLOSINGDATA
-_STARTDATA=2020-01-23
+	read _STARTDATA
+#_STARTDATA=2020-01-23
 
 
 echo "请输入疫情截止日期（范例： 2020-04-05） ->"|tr -d "\012"
-#	read _CLOSINGDATA
-_CLOSINGDATA=2020-04-05
+	read _CLOSINGDATA
+#_CLOSINGDATA=2020-04-05
 
 echo ""
 echo "请输入本次处理的数量 （范例：500000） ->"|tr -d "\012"
-#	read _ROWS
-_ROWS=500000
+	read _ROWS
+#_ROWS=500000
 
 echo ""
-echo "请输入保单归属地， （范例， 假设是武汉 ：420101） ->"|tr -d "\012"
-#	read _ROWS
-_CITYCODE=420100
+echo "请输入保单归属地， （范例， 假设是武汉 ：420100） ->"|tr -d "\012"
+	read _CITYCODE
+#_CITYCODE=420100
 
 ################请按照需求书写sql####################
 
@@ -63,9 +63,9 @@ _CITYCODE=420100
 ##########数量
 _NOFLAG=`db2 -x "select count(*) from cacmain_ncp where flag = ''"`
 _NOFLAG1=`db2 -x "select count(*) from cacmain_ncp where flag = '' and citycode = '${_CITYCODE}'"`
-echo "当前需要处理的数量是 : ${_ROWS}"
+echo "当前省需要处理的数量是 : ${_ROWS}"
 echo "当前省总共未处理的数量是： ${_NOFLAG}"
-echo "当前市总共未处理的数量是： ${_NOFLAG}"
+
 
 
 ####取一定数量的投保确认码,根据起包时间排序
