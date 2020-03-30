@@ -53,6 +53,9 @@ db2 "drop table  IACMain_NCPB"
 db2 "drop table  IACMain_NCPX"
 db2 "drop table  IACMain_NCPPostpone"
 db2 "drop table  IAClaimPolicy_NCP"
+db2 "drop table  KSCMain_NCP"
+db2 "drop table  KSClaim_NCP"
+
 
 
 

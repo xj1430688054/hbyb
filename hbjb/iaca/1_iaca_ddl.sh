@@ -264,6 +264,83 @@ echo "==============================================="
 
 
 
+echo "==============================================="
+echo "创建KSCMain_NCP-跨省续保保单表"
+echo "==============================================="
+db2 "create table KSCMain_NCP
+(
+	SerialNo                  INTEGER   NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1 ),
+	Extractiontime            TIMESTAMP,
+	gid                       VARCHAR(32),
+	vin                       VARCHAR(50),
+	AREACODE                  VARCHAR(10),
+	COMPANYCODE               VARCHAR(10),
+	PLATSUBTYPE               VARCHAR(4),
+	CONFIRMSEQUENCENO         VARCHAR(50),
+	CONFIRMDATE               TIMESTAMP,
+	EFFECTIVEDATE             TIMESTAMP,
+	EXPIREDATE                TIMESTAMP,
+	AREACODE_1                VARCHAR(10),
+	COMPANYCODE_1             VARCHAR(10),
+	PLATSUBTYPE_1             VARCHAR(4),
+	CONFIRMSEQUENCENO_1       VARCHAR(50),
+	CONFIRMDATE_1             TIMESTAMP,
+	EFFECTIVEDATE_1           TIMESTAMP,
+	EXPIREDATE_1              TIMESTAMP,
+   CONSTRAINT P_KSCMain_NCP PRIMARY KEY (SerialNo)
+) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
+echo "==============================================="
+
+echo "==============================================="
+echo "创建KSCMain_NCP-CONFIRMDATE索引"
+echo "==============================================="
+db2 "create index IDX_KSCACMain_NCP_01 on KSCMain_NCP (
+   CONFIRMSEQUENCENO           ASC
+)"
+echo "==============================================="
+
+
+
+
+echo "==============================================="
+echo "KSClaim_NCP-跨省理赔表"
+echo "==============================================="
+db2 "create table KSClaim_NCP
+(
+	SerialNo	INTEGER   NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1 ),
+	Extractiontime	TIMESTAMP,
+	gid	VARCHAR(32),
+	vin	VARCHAR(50),
+	CONFIRMSEQUENCENO	VARCHAR(50),
+	CLAIMSEQUENCENO	VARCHAR(50),
+	PLATSUBTYPE	VARCHAR(4),
+	AREACODE	VARCHAR(10),
+	COMPANYCODE	VARCHAR(10),
+	CLAIMNOTIFYNO	VARCHAR(50),
+	LOSSTIME	TIMESTAMP,
+	CONFIRMDATE	TIMESTAMP,
+	EFFECTIVEDATE	TIMESTAMP,
+	EXPIREDATE	TIMESTAMP,
+   CONSTRAINT P_KSClaim_NCP PRIMARY KEY (SerialNo)
+) IN ${_TBSDATA} INDEX IN ${_TBSINDEX}"
+echo "==============================================="
+
+
+
+
+echo "==============================================="
+echo "创建KSClaim_NCP-VIN索引"
+echo "==============================================="
+db2 "create index IDX_KSClaim_NCP_01 on KSClaim_NCP (
+   vin           ASC
+)"
+echo "==============================================="
+
+
+
+
+
+
 
 
 
