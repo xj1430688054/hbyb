@@ -39,6 +39,10 @@ db2 set schema=${_SCHEMA}
 
 echo "请输入疫情截止日期（范例： 2020-01-23） ->"|tr -d "\012"
 	read _STARTDATA
+	
+	
+	
+_INPUTTIME=`db2 -x "select to_char(current timestamp,'yyyy-mm-dd hh24:mi:ss') from sysibm.dual"`
 #_STARTDATA=2020-01-23
 
 ################请按照需求书写sql####################
@@ -62,11 +66,12 @@ db2 "insert into CACMain_NCP(CONFIRMSEQUENCENO, POLICYNO, COMPANYCODE, CITYCODE,
 		b.LICENSENO,
 		b.ENGINENO,
 		'',
-		current timestamp , 
+		'${_INPUTTIME}',  
 		null
 	 from   cacmain a
 	 inner join CACVehicle b on a.CONFIRMSEQUENCENO=b.CONFIRMSEQUENCENO
-	where a.EXPIREDATE > '${_STARTDATA}' 
+	where a.EXPIREDATE > '${_STARTDATA}'
+	
 		and a.ValidStatus = '1'
 	 
 	 "

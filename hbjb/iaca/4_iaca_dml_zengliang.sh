@@ -35,9 +35,14 @@ db2 set schema=${_SCHEMA}
 #参数名以下划线开始，以下部分开发人员可自行修改，并可以添加需要的参数
 ################以下脚本，根据实际情况修改###############
 ####取出基础数据中最后的提数时间
-_LASTDATE=`db2 -x "select a.INPUTDATE  from cacmain_ncp a  order by a.INPUTDATE desc    fetch first 1 row only"`
+#_LASTDATE=`db2 -x "select a.INPUTDATE  from cacmain_ncp a  order by a.INPUTDATE desc    fetch first 1 row only"`
 
+echo ""    
+echo "请输入上次提数时间（例： 2020-01-23 12:00:00  ） ->"|tr -d "\012"
+    read _LASTDATE
 
+####取出当前的提数时间
+_INPUTTIME=`db2 -x "select to_char(current timestamp,'yyyy-mm-dd hh24:mi:ss') from sysibm.dual"`
 
 ################请按照需求书写sql####################
 
@@ -68,7 +73,7 @@ db2 "insert into CACMain_NCP(CONFIRMSEQUENCENO, POLICYNO, COMPANYCODE, CITYCODE,
 			when c.CONFIRMSEQUENCENO is not null   then '1'
 			when c.CONFIRMSEQUENCENO is  null then '' 
 		end ) enddate,
-		current timestamp , 
+		'${_INPUTTIME}', 
 		null
 	 from   cacmain a
 	 inner join CACVehicle b on a.CONFIRMSEQUENCENO=b.CONFIRMSEQUENCENO
@@ -76,6 +81,8 @@ db2 "insert into CACMain_NCP(CONFIRMSEQUENCENO, POLICYNO, COMPANYCODE, CITYCODE,
 								and a.ConfirmDate  >= '${_LASTDATE}'
 	 left join cacmain_ncp c on a.LASTPOLICYCONFIRMNO = c.CONFIRMSEQUENCENO
 							and c.flag = '1'
+	 left join cacmain_ncp d on d.CONFIRMSEQUENCENO = a.CONFIRMSEQUENCENO
+	 where d.CONFIRMSEQUENCENO is null
 
 	 "
 

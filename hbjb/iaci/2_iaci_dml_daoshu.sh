@@ -41,6 +41,13 @@ echo "请输入疫情开始日期（范例： 2020-01-23） ->"|tr -d "\012"
 #_STARTDATA=2020-01-23
 
 
+####取出当前的提数时间
+
+
+
+_INPUTTIME=`db2 -x "select to_char(current timestamp,'yyyy-mm-dd hh24:mi:ss') from sysibm.dual"`
+
+
 
 
 ################请按照需求书写sql####################
@@ -70,9 +77,9 @@ insert into IACMain_NCP(POLICYCONFIRMNO, POLICYNO, COMPANYCODE, CITYCODE, STARTD
 		b.LICENSENO,
 		b.ENGINENO,
 		'',
-		sys.extracttime, 
+		'${_INPUTTIME}', 
 		null 
-	 from  (select current timestamp as extracttime from sysibm.sysdummy1) sys  , iacmain a
+	 from  iacmain a
 	 inner join IATCItemCar b on a.POLICYCONFIRMNO=b.POLICYCONFIRMNO
 	 left join iaphead c on c.PolicyConfirmNo=a.POLICYCONFIRMNO and c.EndorseType = '2' 
 	where ( a.ENDDATE > '${_STARTDATA}'  and c.PolicyConfirmNo is null )
